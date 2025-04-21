@@ -2,6 +2,11 @@
 
 A general-purpose, scalable service that receives webhook events and publishes them to message brokers (Kafka/RabbitMQ) for other services to consume. (EventFlow, Conduit, Hermes)
 
+## Technical Documentation
+
+For detailed technical information about the system architecture, components, configuration, and deployment, please see the [Technical Documentation](./docs/technical_documentation.md).
+
+
 ## Architecture Overview
 
 ![Architecture Diagram](./docs/image.png)
