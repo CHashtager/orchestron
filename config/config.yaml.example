@@ -1,0 +1,103 @@
+api:
+  address: ":8080"
+  timeout: 30s
+  rate_limit: 100
+  rate_limit_burst: 10
+  api_keys:
+    - "your-api-key-1"
+    - "your-api-key-2"
+  max_payload_size: 1048576  # 1MB
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "postgres"
+  dbname: "orchestron"
+  sslmode: "disable"
+  max_open_conns: 10
+  max_idle_conns: 5
+  conn_max_lifetime_secs: 3600
+
+kafka:
+  brokers:
+    - "localhost:9092"
+  topic_prefix: "orchestron"
+  group_id: "orchestron-group"
+  auto_offset_reset: "latest"
+  enable_auto_commit: true
+  auto_commit_interval: "1s"
+
+rabbitmq:
+  host: "localhost"
+  port: 5672
+  user: "guest"
+  password: "guest"
+  vhost: "/"
+  exchange_prefix: "orchestron"
+  queue_prefix: "orchestron"
+  durable: true
+  auto_delete: false
+  internal: false
+  no_wait: false
+
+outbox:
+  process_interval: 5s
+  batch_size: 100
+  max_retries: 3
+  retry_backoff: 1s
+  cleanup_interval: 1h
+  retention_period: 24h
+
+metrics:
+  port: 9090
+  path: "/metrics"
+  namespace: "orchestron"
+  subsystem: "processor"
+
+broker:
+  type: "kafka"  # "kafka" or "rabbitmq"
+  
+  kafka:
+    bootstrap_servers: "kafka:9092"
+    client_id: "event-orchestrator"
+    max_retries: 3
+    retry_backoff_ms: 100
+    delivery_timeout_ms: 30000
+    queue_buffering_max_ms: 5
+    queue_buffering_max_kbytes: 1024
+    flush_timeout_ms: 1000
+  
+  rabbitmq:
+    host: "rabbitmq"
+    port: 5672
+    user: "guest"
+    password: "guest"
+    vhost: "/"
+    prefetch_count: 10
+    message_ttl_ms: 86400000  # 24 hours
+
+routing:
+  defaults:
+    broker: "kafka"
+    max_retries: 3
+    kafka:
+      topic: "events"
+    rabbitmq:
+      exchange: "events"
+      routing_key: "default"
+      
+  routes:
+    # Example of a specific route configuration
+    "order.created":
+      broker: "kafka"
+      max_retries: 5
+      kafka:
+        topic: "orders"
+    
+    "payment.processed":
+      broker: "rabbitmq"
+      max_retries: 3
+      rabbitmq:
+        exchange: "payments"
+        routing_key: "payment.processed"

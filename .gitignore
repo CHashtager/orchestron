@@ -1,0 +1,11 @@
+.vscode/
+.idea/
+
+config/config.yaml
+
+build/
+
+.DS_Store
+
+.env
+.env.local

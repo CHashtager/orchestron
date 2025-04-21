@@ -1,0 +1,38 @@
+flowchart LR
+    subgraph "External Systems"
+        ES[External Services]
+    end
+    
+    subgraph "Event Orchestration Service"
+        API[Event Receiver API]
+        VAL[Event Validator]
+        PUB[Event Publisher]
+        DLQ[Dead Letter Queue]
+        CFG[Configuration Service]
+        DB[(State Store)]
+    end
+    
+    subgraph "Message Broker"
+        MB[Message Broker\nKafka/RabbitMQ]
+    end
+    
+    subgraph "Subscribing Services"
+        S1[Service 1]
+        S2[Service 2]
+        S3[Service 3]
+    end
+    
+    ES -- "HTTP Webhook\nEvents" --> API
+    API -- "Raw Events" --> VAL
+    VAL -- "Valid Events" --> PUB
+    VAL -- "Invalid Events" --> DLQ
+    PUB -- "Publish Events" --> MB
+    PUB <-. "Transactional\nOutbox" .-> DB
+    PUB -- "Failed Publishes" --> DLQ
+    API <-- "Config" --> CFG
+    VAL <-- "Config" --> CFG
+    PUB <-- "Config" --> CFG
+    
+    MB -- "Consume Events" --> S1
+    MB -- "Consume Events" --> S2
+    MB -- "Consume Events" --> S3
